@@ -4,12 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // ESTA LÍNEA ES LA MAGIA: Arregla la llave para Vercel sí o sí
+    // Limpiador automático de llaves para evitar errores de formato
     const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
-    const privateKey = rawKey
-      .replace(/\\n/g, '\n')     // Cambia las barras de texto por saltos reales
-      .replace(/"/g, '')         // Quita comillas si se colaron
-      .trim();                   // Quita espacios locos al inicio o final
+    const privateKey = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').trim();
 
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.trim(),
@@ -20,6 +17,7 @@ export async function GET() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID?.trim(), serviceAccountAuth);
     await doc.loadInfo(); 
     
+    // Busca la hoja CONFIGURACION
     const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
     const rows = await sheet.getRows();
 
@@ -33,13 +31,7 @@ export async function GET() {
       motivos: rows.map(r => r._rawData[5]).filter(Boolean),
       turnos: rows.map(r => r._rawData[6]).filter(Boolean),
     });
-
   } catch (error) {
-    // Si falla, ahora el log te dirá la verdad pura y dura
-    console.error("ERROR DETECTADO:", error.message);
-    return NextResponse.json({ 
-      error: "Error de conexión", 
-      detalle: error.message 
-    }, { status: 500 });
+    return NextResponse.json({ error: "Error de conexión", detalle: error.message }, { status: 500 });
   }
 }
