@@ -16,36 +16,37 @@ export async function GET() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID?.trim(), serviceAccountAuth);
     await doc.loadInfo(); 
     
-    // BUSCA-HUELLAS: Buscamos la hoja por nombre exacto, ignorando mayúsculas o espacios locos
-    const sheet = doc.sheetsByIndex.find(s => 
-      s.title.toUpperCase().trim() === 'CONFIGURACION'
-    ) || doc.sheetsByIndex[1]; // Si no la encuentra por nombre, usa la segunda pestaña
+    // 1. Buscamos la hoja CONFIGURACION
+    const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
+    
+    // 2. Cargamos un cuadro de celdas (de la fila 2 a la 100, columnas A a la G)
+    await sheet.loadCells('A2:G100');
 
-    const rows = await sheet.getRows();
+    const guardias = [];
+    const instalaciones = [];
+    const supervisores = [];
+    const motivos = [];
+    const turnos = [];
 
-    // Si llegamos aquí y no hay filas, devolvemos un error claro para saber qué pasa
-    if (rows.length === 0) {
-      return NextResponse.json({ 
-        error: "Hoja encontrada pero sin datos", 
-        hoja_leida: sheet.title 
-      }, { status: 200 });
+    // 3. Recorremos las celdas una por una (Fuerza Bruta)
+    for (let i = 1; i < 100; i++) {
+      const id = sheet.getCell(i, 0).value; // Columna A
+      const nombre = sheet.getCell(i, 1).value; // Columna B
+      const inst = sheet.getCell(i, 3).value; // Columna D
+      const sup = sheet.getCell(i, 4).value; // Columna E
+      const mot = sheet.getCell(i, 5).value; // Columna F
+      const tur = sheet.getCell(i, 6).value; // Columna G
+
+      if (nombre) guardias.push({ id: String(id || ''), nombre: String(nombre) });
+      if (inst) instalaciones.push(String(inst));
+      if (sup) supervisores.push(String(sup));
+      if (mot) motivos.push(String(mot));
+      if (tur) turnos.push(String(tur));
     }
 
-    return NextResponse.json({
-      // Columna A (ID) y Columna B (Guardias)
-      guardias: rows.map(r => ({ 
-        id: r._rawData[0] || '',      
-        nombre: r._rawData[1] || ''   
-      })).filter(g => g.nombre),
-      
-      // Mapeo por posición según tu Captura 150:
-      instalaciones: rows.map(r => r._rawData[3]).filter(Boolean), // Columna D
-      supervisores: rows.map(r => r._rawData[4]).filter(Boolean),  // Columna E
-      motivos: rows.map(r => r._rawData[5]).filter(Boolean),       // Columna F
-      turnos: rows.map(r => r._rawData[6]).filter(Boolean),        // Columna G
-    });
+    return NextResponse.json({ guardias, instalaciones, supervisores, motivos, turnos });
 
   } catch (error) {
-    return NextResponse.json({ error: "Fallo de lectura", detalle: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Error de lectura", detalle: error.message }, { status: 500 });
   }
 }
