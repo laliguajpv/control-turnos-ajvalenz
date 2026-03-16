@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // ESTO CORRIGE EL ERROR DE VERCEL (Limpia la llave de saltos de línea raros)
+    // Limpiamos la llave para que Vercel la entienda bien
     const privateKey = process.env.GOOGLE_PRIVATE_KEY 
       ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/"/g, '') 
       : undefined;
@@ -22,8 +22,9 @@ export async function GET() {
     const rows = await sheet.getRows();
 
     const config = {
+      // Aquí traemos el ID y el Nombre. NADA DE RUT.
       guardias: rows.map(r => ({ 
-        id: r.get('ID') || '', // Traemos el ID de la columna A
+        id: r.get('ID') || '', 
         nombre: r.get('Guardias') || '' 
       })).filter(g => g.nombre),
       instalaciones: rows.map(r => r.get('Instalaciones')).filter(Boolean),
@@ -34,6 +35,7 @@ export async function GET() {
 
     return NextResponse.json(config);
   } catch (error) {
+    console.error("Error en API:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
