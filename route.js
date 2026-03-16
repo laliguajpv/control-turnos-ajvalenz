@@ -4,49 +4,34 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
-    const privateKey = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').trim();
-
+    // 1. Conexión básica (tal cual la primera vez)
     const serviceAccountAuth = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.trim(),
-      key: privateKey,
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID?.trim(), serviceAccountAuth);
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
     await doc.loadInfo(); 
     
-    // 1. Buscamos la hoja CONFIGURACION
+    // 2. Ir a la fija: Buscamos la hoja "CONFIGURACION"
+    // Si el nombre falla, cargamos la segunda pestaña (índice 1)
     const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
-    
-    // 2. Cargamos un cuadro de celdas (de la fila 2 a la 100, columnas A a la G)
-    await sheet.loadCells('A2:G100');
+    const rows = await sheet.getRows();
 
-    const guardias = [];
-    const instalaciones = [];
-    const supervisores = [];
-    const motivos = [];
-    const turnos = [];
-
-    // 3. Recorremos las celdas una por una (Fuerza Bruta)
-    for (let i = 1; i < 100; i++) {
-      const id = sheet.getCell(i, 0).value; // Columna A
-      const nombre = sheet.getCell(i, 1).value; // Columna B
-      const inst = sheet.getCell(i, 3).value; // Columna D
-      const sup = sheet.getCell(i, 4).value; // Columna E
-      const mot = sheet.getCell(i, 5).value; // Columna F
-      const tur = sheet.getCell(i, 6).value; // Columna G
-
-      if (nombre) guardias.push({ id: String(id || ''), nombre: String(nombre) });
-      if (inst) instalaciones.push(String(inst));
-      if (sup) supervisores.push(String(sup));
-      if (mot) motivos.push(String(mot));
-      if (tur) turnos.push(String(tur));
-    }
-
-    return NextResponse.json({ guardias, instalaciones, supervisores, motivos, turnos });
+    // 3. Retorno simple (sin filtros raros)
+    return NextResponse.json({
+      guardias: rows.map(r => ({ 
+        id: r.get('ID') || '', 
+        nombre: r.get('Guardias') || '' 
+      })).filter(g => g.nombre),
+      instalaciones: rows.map(r => r.get('Instalaciones')).filter(Boolean),
+      supervisores: rows.map(r => r.get('Supervisores')).filter(Boolean),
+      motivos: rows.map(r => r.get('Motivos')).filter(Boolean),
+      turnos: rows.map(r => r.get('Turnos')).filter(Boolean),
+    });
 
   } catch (error) {
-    return NextResponse.json({ error: "Error de lectura", detalle: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
