@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "control-turnos-guardias",
+  "private_key_id": "fd8718049ee9f906cd2f2ec40dfe4ba3363e8533",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDcGIl3/ZFjETSB\nsEqaVpj2iHs+qRJKP/OSPfxr8OZAjfiJEx36HSb1x6Jt7iZOnVrIH68HhYgCsbbN\n8MsG2G+eskqirmFjAwA32UiD9le3m5l0aKjbhu46zn7G1lGtK/Xefnd+f5ra1HRY\nCqFX5NsAmxhEomn0sqYun7Q5vyuqPGEeGp4A6xsFIcwPEkDSkTDDWIFnU8LzuEby\n4rlBD4YFQ/n50UMZyQ448Q4VyBW4+p/x282gZYSq6CjdfScoaLaKYPfETK+g/Gp8\nfRpHBVOKoawvG3mYqIixrw65FZipdt5dXhWVxySOjGApHGzu4vo2WE6xZHP9W9dv\nurFktUbfAgMBAAECggEALBArgV69+x/oK6igHusEX6LuTZqqozvPZzFKtk95wWXK\n4qJ1p2urr5wCjFCX0bhWAue48mAM3UE38F3rP5kYK6TVJWGU9K4Wnpe9GVI5uHQJ\n0lDbsWt/iT1rCyLAIlPBOwSFpskkNvg+vJuQNpkGMUZbou4DGW6kr4PgoIkB1Gg3\n51TMnCsw6AlxXtMlyxdGibmYhNLr+903rEjpRxB8rTfgckwGwVuobE0xqV1qdngk\nQX7Xt6Y4VUTgeTQbgBkL1Rn0gOlJOsFZvtGIvrcxbJtrfGqEWZTHjRCBNKnUQ2AZ\n+lwynS+BL3/wec1H8eDyRB2idZy9GKASVUg9w3fzEQKBgQD9flIHjCJmyvP/L27a\nALql3kYcYt2D6YorHa43aCUD+CMMWFIP/79UPWMMr8dl6OTbTQFYe5L46TShylj0\neQ+wAALDqhJ8+OkmSsetIi5Hi/u6KCw1V5o/sQYvtPyh/Lrvi2/q+sqTDNdoEjuG\nM/w90pIRYoj1vP/0TgVBprwKTwKBgQDeRaz669jFLaLP8QDM95xi23g4WPeXZswL\nHwjoXGiHHEm5Nb7TT/+ksklz4/eUCl+a1ocPvjQEBoOaT74NMw8UGRuv2z+cC/3p\nPP2ZFC2vSjqXcsi8bti+P/ukqeo3L3QnMvoUI+fohJUY/aAtT0S9Pz255MKQL2F1\nZHI6eMMmcQKBgElBRv1NXuerwOU+1N8FFOs4F7S+UVt8kuQw2JbEbuX9wEsh/t0G\nwEjc0JHq/kmSCwjg8QGb/HYYFpCmxBwqHAF1j1byABPDbsUVGS0MUql0Z5N9ZoEn\nxrifNLV2rQc23OK6veX/AamLLXiyxCbdQQiwoGuLuR6itqjoHxbA01h7AoGAAtT6\nbjwBCAobz/BvJS1mda/8KSOhC/HIWb/seiFrR4Vpvw1bQA/93thSrUJTTjSPoUZo\ndB/lQ8Pde2LWtg5Xe9cSDjyJ4/AXLRiU1pV2O4yDkJhqzFPROSNRjniHvmpBXZp9\nqzIF62V9DNN2bf1bj9m1bJ/ohrPD1x4PgoU1X1ECgYBoaxT2wx3eZCDNH9UHE+dF\nPjbmIj37HgYbtZFjh+i7eDCsFXYE5vnnnPC8M9m5dGuMJwSyHMwJOMpgzbQiLICu\n6Hn1UWk16KDGvbbMOd8s3APMMyXnbcBZzwUvh1WbHjB7mxDl79sUpnTLE3eD2ezl\nrdjhQXPGjDO70IauVZE7ow==\n-----END PRIVATE KEY-----\n",
+  "client_email": "conexionbasededatos@control-turnos-guardias.iam.gserviceaccount.com",
+  "client_id": "118013343445552756373",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/conexionbasededatos%40control-turnos-guardias.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
