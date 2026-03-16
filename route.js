@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY 
-      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/"/g, '').trim() 
-      : undefined;
+    // 1. Limpieza de la llave (Esto arregla el error 'undefined' de Vercel)
+    const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
+    const privateKey = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').trim();
 
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -17,22 +17,27 @@ export async function GET() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
     await doc.loadInfo(); 
     
-    const sheet = doc.sheetsByTitle['CONFIGURACION'];
+    // 2. Buscamos la hoja (Por nombre o por posición para que no falle)
+    const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
     const rows = await sheet.getRows();
 
-    // LEEMOS POR POSICIÓN (A, B, C...) PARA EVITAR ERRORES DE NOMBRES
+    // 3. Devolvemos los datos (NADA DE RUT, solo lo que pediste)
     return NextResponse.json({
       guardias: rows.map(r => ({ 
-        id: r._rawData[0] || '',      // Columna A (ID)
-        nombre: r._rawData[1] || ''   // Columna B (Guardias)
+        id: r._rawData[0] || '',      // Columna A
+        nombre: r._rawData[1] || ''   // Columna B
       })).filter(g => g.nombre),
-      
       instalaciones: rows.map(r => r._rawData[3]).filter(Boolean), // Columna D
       supervisores: rows.map(r => r._rawData[4]).filter(Boolean),  // Columna E
       motivos: rows.map(r => r._rawData[5]).filter(Boolean),       // Columna F
       turnos: rows.map(r => r._rawData[6]).filter(Boolean),        // Columna G
     });
+
   } catch (error) {
-    return NextResponse.json({ error: "Fallo de conexión", detalle: error.message }, { status: 500 });
+    // Esto nos dirá si es la llave o el permiso
+    return NextResponse.json({ 
+      error: "Error en la conexión", 
+      mensaje: error.message || "La llave no es válida" 
+    }, { status: 500 });
   }
 }
