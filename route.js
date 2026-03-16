@@ -16,18 +16,29 @@ export async function GET() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID?.trim(), serviceAccountAuth);
     await doc.loadInfo(); 
     
-    // CONCLUSIÓN: Forzamos que busque la hoja por nombre exacto o por la posición 2 (índice 1)
-    const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
+    // BUSCA-HUELLAS: Buscamos la hoja por nombre exacto, ignorando mayúsculas o espacios locos
+    const sheet = doc.sheetsByIndex.find(s => 
+      s.title.toUpperCase().trim() === 'CONFIGURACION'
+    ) || doc.sheetsByIndex[1]; // Si no la encuentra por nombre, usa la segunda pestaña
+
     const rows = await sheet.getRows();
 
-    // Leemos las columnas según tu Captura 150
+    // Si llegamos aquí y no hay filas, devolvemos un error claro para saber qué pasa
+    if (rows.length === 0) {
+      return NextResponse.json({ 
+        error: "Hoja encontrada pero sin datos", 
+        hoja_leida: sheet.title 
+      }, { status: 200 });
+    }
+
     return NextResponse.json({
+      // Columna A (ID) y Columna B (Guardias)
       guardias: rows.map(r => ({ 
-        id: r._rawData[0] || '',      // Columna A (ID)
-        nombre: r._rawData[1] || ''   // Columna B (Guardias)
+        id: r._rawData[0] || '',      
+        nombre: r._rawData[1] || ''   
       })).filter(g => g.nombre),
       
-      // Saltamos el RUT (Columna C) y seguimos con las demás:
+      // Mapeo por posición según tu Captura 150:
       instalaciones: rows.map(r => r._rawData[3]).filter(Boolean), // Columna D
       supervisores: rows.map(r => r._rawData[4]).filter(Boolean),  // Columna E
       motivos: rows.map(r => r._rawData[5]).filter(Boolean),       // Columna F
