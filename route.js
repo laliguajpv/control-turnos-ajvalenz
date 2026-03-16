@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // Limpiador automático de llaves para evitar errores de formato
     const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
     const privateKey = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').trim();
 
@@ -17,21 +16,25 @@ export async function GET() {
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID?.trim(), serviceAccountAuth);
     await doc.loadInfo(); 
     
-    // Busca la hoja CONFIGURACION
+    // CONCLUSIÓN: Forzamos que busque la hoja por nombre exacto o por la posición 2 (índice 1)
     const sheet = doc.sheetsByTitle['CONFIGURACION'] || doc.sheetsByIndex[1];
     const rows = await sheet.getRows();
 
+    // Leemos las columnas según tu Captura 150
     return NextResponse.json({
       guardias: rows.map(r => ({ 
-        id: r._rawData[0] || '',      
-        nombre: r._rawData[1] || ''   
+        id: r._rawData[0] || '',      // Columna A (ID)
+        nombre: r._rawData[1] || ''   // Columna B (Guardias)
       })).filter(g => g.nombre),
-      instalaciones: rows.map(r => r._rawData[3]).filter(Boolean),
-      supervisores: rows.map(r => r._rawData[4]).filter(Boolean),
-      motivos: rows.map(r => r._rawData[5]).filter(Boolean),
-      turnos: rows.map(r => r._rawData[6]).filter(Boolean),
+      
+      // Saltamos el RUT (Columna C) y seguimos con las demás:
+      instalaciones: rows.map(r => r._rawData[3]).filter(Boolean), // Columna D
+      supervisores: rows.map(r => r._rawData[4]).filter(Boolean),  // Columna E
+      motivos: rows.map(r => r._rawData[5]).filter(Boolean),       // Columna F
+      turnos: rows.map(r => r._rawData[6]).filter(Boolean),        // Columna G
     });
+
   } catch (error) {
-    return NextResponse.json({ error: "Error de conexión", detalle: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Fallo de lectura", detalle: error.message }, { status: 500 });
   }
 }
